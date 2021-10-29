@@ -751,7 +751,7 @@ def say(conversation, message, reaction, me, thread):
     kwargs = {}
     if thread:
         kwargs["thread_ts"] = thread
-    LOGGER.info(f"Saying '{message}' to '{conversation}'")
+    LOGGER.debug(f"Saying '{message}' to '{conversation}'")
     response = endpoint(conversation.id, message, **kwargs)
     for r in reaction:
         config.slack.client.reactions.add(
