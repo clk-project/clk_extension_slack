@@ -45,6 +45,7 @@ db = redis.StrictRedis(decode_responses=True)
 def get_slack_token():
     if config.slack.account is None:
         return None
+    LOGGER.debug(f"Getting token for account: {config.slack.account}")
     values = get_authenticator(config.slack.account + "_slack_token",
                                required=False,
                                askpass=False)
