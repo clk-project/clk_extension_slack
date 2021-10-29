@@ -1,53 +1,41 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
-from __future__ import print_function, absolute_import
+from __future__ import absolute_import, print_function
 
-import time
-import os
-import re
-import datetime
-import sys
-import builtins
-from dateutil.parser import parse as dateparse
-import json
-import requests
-import pprint
 import asyncio
+import builtins
+import datetime
+import json
+import os
+import pprint
+import re
+import sys
+import time
+
+import click
+import parsedatetime
 import redis
+import requests
+import slacker
+import websockets
+from dateutil.parser import parse as dateparse
 from requests.exceptions import HTTPError
 
-import websockets
-import click
-import slacker
-import parsedatetime
 try:
     from redis_bot import lib as botlib
 except ImportError:
     botlib = None
 
-from clk.decorators import (
-    group,
-    table_fields,
-    table_format,
-    argument,
-    param_config,
-    option,
-    flag,
-)
-from clk.log import get_logger
-from clk.lib import (
-    get_authenticator,
-    TablePrinter,
-    ParameterType,
-    makedirs,
-    json_dumps,
-    createfile,
-)
+from clk.commands.password import set as password_set_command
 from clk.completion import startswith
 from clk.config import config
 from clk.core import cache_disk
-from clk.commands.password import set as password_set_command
+from clk.decorators import (argument, flag, group, option, param_config,
+                            table_fields, table_format)
+from clk.lib import (ParameterType, TablePrinter, createfile,
+                     get_authenticator, json_dumps, makedirs)
+from clk.log import get_logger
 
 LOGGER = get_logger(__name__)
 
@@ -751,10 +739,7 @@ def save_token():
 @argument("conversation",
           type=ConversationType(),
           help="The conversation of interest")
-@option("--reaction",
-        multiple=True,
-        help="Some reactions to put in it."
-        " Implies --wait-server-response")
+@option("--reaction", multiple=True, help="Some reactions to put in it.")
 @flag("--me/--no-me", help="Send a me message")
 @option("--thread", help="Reply in a thread")
 @argument("message", help="The message to send", type=MessageType())
@@ -1059,6 +1044,7 @@ if botlib is not None:
                     fixup_message(message)
                 except:
                     import sys
+
                     import ipdb
                     ipdb.post_mortem(sys.exc_info()[2])
 
