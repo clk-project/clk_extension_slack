@@ -63,6 +63,7 @@ def parse_text(text):
 
 
 class Message():
+
     def __init__(self, data):
         if "user" not in data:
             if "bot_id" in data:
@@ -90,6 +91,7 @@ class Message():
 
 
 class Conversation():
+
     def __init__(self, endpoint, data):
         self.endpoint = endpoint
         self.data = data
@@ -147,6 +149,7 @@ class Conversation():
 
     @property
     def members(self):
+
         @cache_disk(expire=36000)
         def _conversation_members(id, token):
             return config.slack.client.conversations.members(
@@ -243,6 +246,7 @@ class Conversation():
         return [m for m in hist if with_subtypes or "subtype" not in m.data]
 
     def _history(self, oldest=None, latest=None, user=None, count=1000):
+
         def get_history_unpage(latest, oldest, count):
             remaining_count = count
             has_more = True
@@ -286,12 +290,14 @@ class Conversation():
 
 
 class Group(Conversation):
+
     @property
     def num_members(self):
         return None
 
 
 class MP(Conversation):
+
     @property
     def num_members(self):
         return None
@@ -302,6 +308,7 @@ class Channel(Conversation):
 
 
 class IM(Conversation):
+
     @property
     def name(self):
         return config.slack.users[self.data["user"]]["name"]
@@ -338,6 +345,7 @@ class Conversations():
     list_index = "channels"
 
     def list(self):
+
         @cache_disk(expire=36000)
         def _list(token, name):
             return [(self.endpoint, c) for c in self.endpoint.list(
@@ -393,6 +401,7 @@ class Channels(Conversations):
 
 
 class User():
+
     def __init__(self, data):
         self.data = data
         data["real_name"] = data.get("real_name", data["name"])
@@ -417,6 +426,7 @@ async_get = asyncio.get_event_loop().run_until_complete
 
 
 class RTM():
+
     def __init__(self, endpoint):
         self.endpoint = endpoint
         async_get(self.reset())
@@ -500,7 +510,9 @@ class Users:
 
     It uses a cached version of the team users and
     fetches users it does not about (like those in shared conversation)."""
+
     def __init__(self, slackconfig):
+
         @cache_disk(expire=36000)
         def hosted_users(token):
             return [
@@ -519,6 +531,7 @@ class Users:
         return "@" + user["name"]
 
     def __getitem__(self, key):
+
         def get_user(key):
             if key in self.hosted_users:
                 return self.hosted_users[key]
@@ -530,6 +543,7 @@ class Users:
 
 
 class SlackConfig():
+
     def __init__(self):
         self._client = None
         self._rtm = None
@@ -641,6 +655,7 @@ def find_user(value):
 
 
 class UserType(ParameterType):
+
     def complete(self, ctx, incomplete):
         return [
             user["name"] for user in config.slack.users.values()
@@ -658,6 +673,7 @@ class UserType(ParameterType):
 
 
 class ConversationType(ParameterType):
+
     def __init__(self, all=False, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.all = all
@@ -676,6 +692,7 @@ class ConversationType(ParameterType):
         ]
 
     def convert(self, value, param, ctx):
+
         def fail():
             self.fail('%s is not a valid group name' % value, param, ctx)
 
@@ -720,6 +737,7 @@ def message_handle(message):
 
 
 class MessageType(ParameterType):
+
     def convert(self, value, param, ctx):
         return message_handle(value)
 
@@ -1363,6 +1381,7 @@ def reaction_handle(reaction):
 
 
 class MessageReactionType(ParameterType):
+
     @staticmethod
     def list():
         return [
@@ -1774,6 +1793,8 @@ def _set(text, emoji):
     if emoji is not None:
         profile["status_emoji"] = emoji
     config.slack.client.users.profile.set(profile=json.dumps(profile))
+    from clk.core import run
+    run(["slack", "status", "get"])
 
 
 @status.command()
