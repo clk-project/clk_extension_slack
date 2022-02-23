@@ -1825,6 +1825,32 @@ def back(text, emoji):
 
 
 @slack.group()
+def holidays():
+    """Se the status to tell I'm AFK"""
+
+
+@holidays.command()
+@argument("end", help="The end of the holidays", type=dateparse)
+@option("--emoji", help="The emoji of the status")
+def set_time_off(end, emoji):
+    """Indicate you are in a holiday"""
+    from clk.core import run
+    cmd = [
+        "slack", "status", "set", "--text",
+        f"Holidays, hopefully until {end.strftime('%Y-%m-%d')}"
+    ]
+    if emoji:
+        cmd += ["--emoji", emoji]
+    run(cmd)
+
+
+config.globalpreset_profile.settings["alias"]["slack.holidays.gone-skiing"] = {
+    "commands": [["slack", "holidays", "set-time-off", "--emoji", ":ski:"]],
+    "documentation": None
+}
+
+
+@slack.group()
 def pomodoro_status():
     """Handle the status to show the pomodoro state"""
     # presence = config.slack.client.users.get_presence(
